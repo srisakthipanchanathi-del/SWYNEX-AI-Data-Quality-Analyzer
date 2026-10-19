@@ -1,71 +1,170 @@
-# SWYNEX AI Data Quality Analyzer
+# SWYNEX AI — Data Quality Analyzer
 
-A small, reproducible Python project that profiles a CSV file and flags common data-quality issues before analysis or machine-learning use.
+A beginner-friendly Python application that profiles CSV datasets, detects common data-quality issues, and evaluates outlier detection against labeled ground truth.
 
-## Problem statement
-Analysts can waste time training models on datasets containing missing values, duplicate records, or unusual numeric values. This prototype scans a CSV and produces a concise quality report so a person can review issues before using the data.
+## 1. Problem Statement
 
-## Intended user
-Students, data analysts, and ML practitioners who need a first-pass check of tabular data.
+Missing values, duplicate records, and unusual numerical values can affect data analysis and machine-learning workflows. SWYNEX AI automates an initial quality check and generates a report that helps users review potential issues before using a dataset.
 
-## What it checks
-- Missing values per column and rows containing missing values
-- Exact duplicate records (excluding the unique `record_id` field when present)
-- Potential numerical outliers using the interquartile range (IQR) rule
-- A transparent data-quality score based on the proportion of cells that are missing, duplicate-row share, and numeric outlier-cell share
+## 2. Key Features
 
-The score is a simple project-defined indicator, not an industry standard or a guarantee that a dataset is suitable for modelling.
+- Detect missing values by column and row.
+- Identify exact duplicate records.
+- Flag potential numerical outliers using the Interquartile Range (IQR) method.
+- Calculate a project-defined data-quality score.
+- Evaluate outlier detection using precision, recall, and F1-score.
+- Generate JSON reports and an outlier visualization.
 
-## Data source
-`sample_data.csv` is a synthetic demonstration dataset generated for this project. It contains 105 rows, with deliberately injected missing values, numeric outliers, and duplicate copies. It contains no real personal data. `ground_truth.csv` records which row IDs were deliberately modified, allowing a basic evaluation on this known demo dataset.
+## 3. Technology Stack
 
-## Success criteria
-The prototype is evaluated against the known injected issues:
-- Report missing-value counts accurately.
-- Identify exact duplicate copies.
-- Detect the deliberately injected numeric outliers using the documented IQR rule.
-- Report precision and recall for the outlier detector against the injected outlier labels.
+- Python 3.10+
+- Pandas and NumPy
+- Matplotlib
+- CSV datasets
+- Git and GitHub
 
-Targets: at least 90% precision and 80% recall for injected outliers on this sample. These are targets, not guaranteed results. Since the dataset is small and synthetic, performance does not establish real-world generalization.
+See `requirements.txt` for dependencies.
 
-## Method
-1. Load the CSV with Pandas.
-2. Calculate missing-value counts and duplicate rows.
-3. For numeric columns, flag values outside Q1 − 1.5×IQR and Q3 + 1.5×IQR.
-4. Calculate a simple transparent quality score.
-5. On the included sample dataset, compare detected outlier row IDs with `ground_truth.csv` and print precision/recall/F1.
+## 4. Dataset
 
-## Run locally
-Requires Python 3.10+.
+The included `sample_data.csv` is a synthetic dataset containing 105 rows and 6 columns. It includes deliberately injected missing values, duplicate records, and numerical outliers.
+
+`ground_truth.csv` provides labels for evaluating injected outliers. The demo dataset contains no real customer personal data.
+
+## 5. Methodology
+
+1. Load the CSV using Pandas.
+2. Count missing values and rows containing them.
+3. Identify duplicate records, excluding `record_id` when present.
+4. Apply the IQR rule to numerical features.
+5. Calculate a heuristic data-quality score.
+6. Compare detected outliers with the supplied ground-truth labels.
+7. Generate a quality report and visualization.
+
+For each numerical feature:
+
+- IQR = Q3 − Q1
+- Lower bound = Q1 − 1.5 × IQR
+- Upper bound = Q3 + 1.5 × IQR
+
+Values outside these bounds are flagged as potential outliers, not necessarily errors.
+
+## 6. Installation and Usage
+
+Install Python 3.10 or later.
+
+Clone the repository:
+
+```bash
+git clone https://github.com/srisakthipanchanathi-del/SWYNEX-AI-Data-Quality-Analyzer.git
+cd SWYNEX-AI-Data-Quality-Analyzer
+```
+
+Install dependencies:
 
 ```bash
 python3 -m pip install -r requirements.txt
+```
+
+Run the analyzer:
+
+```bash
 python3 analyzer.py sample_data.csv
 ```
 
-For evaluation against the bundled ground truth:
+Run the analyzer with ground-truth evaluation:
 
 ```bash
 python3 analyzer.py sample_data.csv --ground-truth ground_truth.csv
 ```
 
-To analyze your own CSV, pass its path:
+Run the standalone evaluation script:
+
+```bash
+python3 evaluate.py
+```
+
+To analyze another CSV:
 
 ```bash
 python3 analyzer.py path/to/your_data.csv
 ```
 
-The script writes `quality_report.json` and `outlier_summary.png` in the current directory. Review flags before deleting or modifying any data.
+## 7. Demonstration Results
 
-## Limitations and responsible use
-- IQR flags unusual values, not necessarily errors; legitimate extreme values can be flagged.
-- Exact duplicates are detected using all columns except `record_id` when present. Similar-but-not-identical records are not detected.
-- The quality score is a simple heuristic and should not be treated as a universal benchmark.
-- The demo data is synthetic and small. Test on representative, authorized data before relying on the tool.
-- The tool does not automatically delete, impute, or correct records. Human review is required.
+Observed results on the included synthetic dataset:
 
-## Files
-- `analyzer.py` — CSV analysis and evaluation
-- `sample_data.csv` — synthetic sample data with injected issues
-- `ground_truth.csv` — labels for injected issues in the demo
-- `requirements.txt` — dependencies
+| Metric | Result |
+|---|---:|
+| Rows analyzed | 105 |
+| Columns | 6 |
+| Missing cells | 10 |
+| Rows with missing values | 10 |
+| Exact duplicate rows | 5 |
+| Rows with potential outliers | 9 |
+| Heuristic quality score | 97.49/100 |
+| Outlier precision | 77.8% |
+| Outlier recall | 100% |
+| Outlier F1-score | 87.5% |
+
+The detector found all labeled injected outliers in this test, but some flagged rows were not labeled as outliers. Precision therefore remains an improvement area.
+
+These results apply only to the included synthetic dataset and do not demonstrate real-world generalization.
+
+The quality score is a project-defined heuristic, not a standardized measure of dataset correctness.
+
+## 8. Generated Outputs
+
+- `quality_report.json` — structured data-quality results.
+- `evaluation_results.json` — evaluation output.
+- `outlier_summary.png` — visualization of outlier analysis.
+
+These files are generated by running the relevant project scripts.
+
+## 9. Limitations
+
+- IQR can flag legitimate extreme values.
+- Similar-but-not-identical duplicate records are not detected.
+- The quality score is not an industry standard.
+- A small synthetic dataset cannot establish real-world performance.
+- Detection quality depends on the data distribution and labels.
+- The application does not automatically correct or delete data.
+- Human review is required before acting on flagged issues.
+
+## 10. Ethics and Responsible Use
+
+- Analyze only datasets you are authorized to use.
+- Do not publish confidential or personally identifiable information.
+- Prefer synthetic or anonymized data for demonstrations.
+- Treat detection results as suggestions requiring human review.
+- Report evaluation results honestly, including false positives.
+- Preserve original data and obtain approval before modifying it.
+- Do not use the heuristic score alone for high-impact decisions.
+
+## 11. Future Improvements
+
+- Add an interactive web interface.
+- Support Excel and other data formats.
+- Introduce configurable detection thresholds.
+- Reduce false positives and improve evaluation coverage.
+- Provide downloadable reports and explanations for flagged records.
+- Test with larger, representative datasets.
+
+## 12. Project Files
+
+- `analyzer.py` — data-quality analysis.
+- `evaluate.py` — standalone evaluation workflow.
+- `sample_data.csv` — synthetic sample dataset.
+- `ground_truth.csv` — injected outlier labels.
+- `requirements.txt` — project dependencies.
+- `README.md` — project documentation.
+
+## 13. Conclusion
+
+SWYNEX AI demonstrates how Python can automate preliminary data-quality checks and evaluate outlier detection. It provides a reproducible foundation for more comprehensive and explainable data-validation tools.
+
+## Links
+
+- GitHub: https://github.com/srisakthipanchanathi-del/SWYNEX-AI-Data-Quality-Analyzer
+  
+
