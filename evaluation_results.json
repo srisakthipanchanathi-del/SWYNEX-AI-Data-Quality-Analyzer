@@ -1,0 +1,33 @@
+{
+  "dataset": "sample_data.csv",
+  "records_evaluated": 105,
+  "results": {
+    "missing_values": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "labelled_positive_cases": 10,
+      "predicted_positive_cases": 10
+    },
+    "outliers": {
+      "precision": 0.7778,
+      "recall": 1.0,
+      "f1_score": 0.875,
+      "labelled_positive_cases": 7,
+      "predicted_positive_cases": 9
+    },
+    "duplicates": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "labelled_positive_cases": 5,
+      "predicted_positive_cases": 5
+    }
+  },
+  "limitations": [
+    "Results depend on the quality and coverage of synthetic labels.",
+    "IQR outlier detection may flag legitimate rare values.",
+    "Duplicate detection uses all columns except record_id.",
+    "These metrics evaluate issue detection, not AI explanation quality."
+  ]
+}
